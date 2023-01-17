@@ -18,8 +18,8 @@ class ScoreFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View? {
         _binding = FragmentScoreBinding.inflate(inflater, container, false)
-
-
+        val args = ScoreFragmentArgs.fromBundle(requireArguments())
+        binding.tvTitle.text = "Congratulations ${args.winner}\nNow you are the current\nCHAMPION"
 
         return binding.root
     }

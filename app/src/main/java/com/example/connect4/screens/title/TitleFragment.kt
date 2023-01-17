@@ -23,7 +23,7 @@ class TitleFragment : Fragment() {
         val view = binding.root
 
         binding.btnTitle.setOnClickListener {
-            view.findNavController().navigate(R.id.action_titleFragment_to_gameFragment)
+            view.findNavController().navigate(TitleFragmentDirections.actionTitleFragmentToGameFragment())
         }
 
 

@@ -1,21 +1,26 @@
 package com.example.connect4.screens.game
 
-import android.icu.text.AlphabeticIndex
 import android.os.Bundle
+import android.text.BoringLayout
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.LinearLayout
 import androidx.cardview.widget.CardView
-import androidx.constraintlayout.helper.widget.MotionEffect.*
 import androidx.core.content.ContextCompat
+import androidx.core.view.forEach
 import androidx.core.view.get
+import androidx.navigation.findNavController
 import com.example.connect4.R
 import com.example.connect4.databinding.FragmentGameBinding
+import java.util.ArrayList
 
 const val NUMBEROFCOLUMNS = 7
 const val NUMBEROFRAWS = 6
+const val BLUE = "blue"
+const val RED = "red"
 
 class GameFragment : Fragment() {
 
@@ -24,7 +29,7 @@ class GameFragment : Fragment() {
     // Values are asign considering a fixed board's matrix [6, 7]
     private var fullLevelRaw = mutableListOf(6, 6, 6, 6, 6, 6, 6)
     private var matrix = mutableMapOf<String, MutableList<Int>>()
-    private var turnColorId = R.color.blue
+    private var turnColor = BLUE
 
 
     override fun onCreateView(
@@ -32,19 +37,50 @@ class GameFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View? {
         _binding = FragmentGameBinding.inflate(inflater, container, false)
-        startMatrix()
+        val view = binding.root
+
+        // Inicializa la Matriz de valores desde null o desde valores guardados en onSaveInstanceState()
+        if (savedInstanceState == null) {
+            startMatrix()
+        } else {
+            binding.tablero.forEach {
+                val id = it.id.toString()
+                matrix[id] = savedInstanceState.getIntegerArrayList(id) as MutableList<Int>
+            }
+            fullLevelRaw = savedInstanceState.getIntegerArrayList("FULLRAW") as MutableList<Int>
+            binding.tvTitle.text = savedInstanceState.getString(binding.tvTitle.id.toString())
+            binding.btnNext.visibility = savedInstanceState.getInt(binding.btnNext.id.toString())
+        }
+
         tintBoard()
 
-        binding.column1.setOnClickListener { addTokenToColumn(it as CardView) }
-        binding.column2.setOnClickListener { addTokenToColumn(it as CardView) }
-        binding.column3.setOnClickListener { addTokenToColumn(it as CardView) }
-        binding.column4.setOnClickListener { addTokenToColumn(it as CardView) }
-        binding.column5.setOnClickListener { addTokenToColumn(it as CardView) }
-        binding.column6.setOnClickListener { addTokenToColumn(it as CardView) }
-        binding.column7.setOnClickListener { addTokenToColumn(it as CardView) }
+        // Se inicializan los listeners para cuando se presionan las columnas
+        binding.tablero.forEach {
+            it.setOnClickListener { addTokenToColumn(it as CardView)  }
+        }
+
+        binding.btnNext.setOnClickListener {
+            view.findNavController().navigate(GameFragmentDirections.actionGameFragmentToScoreFragment(turnColor))
+        }
+
+        return view
+    }
 
 
-        return binding.root
+    override fun onSaveInstanceState(outState: Bundle) {
+        // Almacena valores de matrix
+        binding.tablero.forEach {
+            val id = it.id.toString()
+            outState.putIntegerArrayList(id, matrix[id] as ArrayList<Int>)
+        }
+        // Almacena valores de fullLevelRaw
+        outState.putIntegerArrayList("FULLRAW", fullLevelRaw as ArrayList<Int>)
+        // Almacena valores de Tv_title
+        outState.putString(binding.tvTitle.id.toString(), binding.tvTitle.text.toString())
+        // Almacena visibilidad de next Button
+        outState.putInt(binding.btnNext.id.toString(), binding.btnNext.visibility)
+
+        super.onSaveInstanceState(outState)
     }
 
 
@@ -55,13 +91,9 @@ class GameFragment : Fragment() {
 
 
     fun startMatrix(){
-        matrix[binding.column1.id.toString()] = mutableListOf( 0, 0, 0, 0, 0, 0)
-        matrix[binding.column2.id.toString()] = mutableListOf( 0, 0, 0, 0, 0, 0)
-        matrix[binding.column3.id.toString()] = mutableListOf( 0, 0, 0, 0, 0, 0)
-        matrix[binding.column4.id.toString()] = mutableListOf( 0, 0, 0, 0, 0, 0)
-        matrix[binding.column5.id.toString()] = mutableListOf( 0, 0, 0, 0, 0, 0)
-        matrix[binding.column6.id.toString()] = mutableListOf( 0, 0, 0, 0, 0, 0)
-        matrix[binding.column7.id.toString()] = mutableListOf( 0, 0, 0, 0, 0, 0)
+        binding.tablero.forEach {
+            matrix[it.id.toString()] = mutableListOf( 0, 0, 0, 0, 0, 0)
+        }
     }
 
 
@@ -82,10 +114,12 @@ class GameFragment : Fragment() {
     private fun tintRaws(column: CardView, raw: Int){
         val linearLayout = column.get(0) as LinearLayout
 
-        linearLayout.get(raw).backgroundTintList = if (raw >= fullLevelRaw[binding.tablero.indexOfChild(column)]){
-            ContextCompat.getColorStateList(binding.root.context, turnColorId)
-        } else ContextCompat.getColorStateList(binding.root.context, R.color.sahding_yellow)
-
+        val itemColor = matrix[column.id.toString()]?.get(raw)!!
+        linearLayout.get(raw).backgroundTintList =
+            if (itemColor != 0){
+                if(itemColor > 0) ContextCompat.getColorStateList(binding.root.context, R.color.blue)
+                else ContextCompat.getColorStateList(binding.root.context, R.color.red)
+            } else ContextCompat.getColorStateList(binding.root.context, R.color.sahding_yellow)
     }
 
 
@@ -98,101 +132,50 @@ class GameFragment : Fragment() {
             fullLevelRaw[columnIndex] -= 1
 
             //Le asigna el valor seleccionado al las raws de la columna
-            matrix[columnId]?.set(fullLevelRaw[columnIndex], if (turnColorId == R.color.blue) 1  else -1)
+            matrix[columnId]?.set(fullLevelRaw[columnIndex], if (turnColor == BLUE) 1  else -1)
             tintRaws(column, fullLevelRaw[columnIndex])
-            detectFourInLine(column, fullLevelRaw[columnIndex])
-            turnColorId = if (turnColorId == R.color.blue) R.color.red else R.color.blue
+            if (!detectFourInLine(column, fullLevelRaw[columnIndex])) {
+                turnColor = if (turnColor == BLUE) RED else BLUE
+                changeTitle()
+            }
+
         }
 
     }
 
 
-    private fun detectFourInLine(currentColumn: CardView, currentRaw: Int) {
-        val currentColumnIndex = binding.tablero.indexOfChild(currentColumn)
+    private fun detectFourInLine(currentColumn: CardView, currentRaw: Int): Boolean  {
         var itemsInLine = 1
 
-
-        println("\n### Turn: ${ContextCompat.getColorStateList(this.requireContext(), turnColorId).toString()}")
-
         // Prove Diagonal NorthEast / SouthWest
-        itemsInLine = isSame(currentColumn, currentRaw, itemsInLine, Direction.NORTHEAST)
-        itemsInLine = isSame(currentColumn, currentRaw, itemsInLine, Direction.SOUTHWEST)
-        println("->NorthEast-SouthWest: $itemsInLine")
-        itemsInLine = 1
+        itemsInLine = isSame(currentColumn, currentRaw, itemsInLine, Directions.NORTHEAST)
+        itemsInLine = isSame(currentColumn, currentRaw, itemsInLine, Directions.SOUTHWEST)
+        if (iswinner(itemsInLine)) return true
+        else itemsInLine = 1
 
         // Prove  Horizontal
-        itemsInLine = isSame(currentColumn, currentRaw, itemsInLine, Direction.EAST)
-        itemsInLine = isSame(currentColumn, currentRaw, itemsInLine, Direction.WEST)
-        println("->Horizontal: $itemsInLine")
-        itemsInLine = 1
+        itemsInLine = isSame(currentColumn, currentRaw, itemsInLine, Directions.EAST)
+        itemsInLine = isSame(currentColumn, currentRaw, itemsInLine, Directions.WEST)
+        if (iswinner(itemsInLine)) return true
+        else itemsInLine = 1
 
         // Prove Vertical
-        itemsInLine = isSame(currentColumn, currentRaw, itemsInLine, Direction.SOUTH)
-        println("->Vertical: $itemsInLine")
-        itemsInLine = 1
+        itemsInLine = isSame(currentColumn, currentRaw, itemsInLine, Directions.SOUTH)
+        if (iswinner(itemsInLine)) return true
+        else itemsInLine = 1
 
         // Prove Diagonal NorthWest / SouthEast
-        itemsInLine = isSame(currentColumn, currentRaw, itemsInLine, Direction.NORTHWEST)
-        itemsInLine = isSame(currentColumn, currentRaw, itemsInLine, Direction.SOUTHEAST)
-        println("->NorthWest-SouthEast: $itemsInLine")
+        itemsInLine = isSame(currentColumn, currentRaw, itemsInLine, Directions.NORTHWEST)
+        itemsInLine = isSame(currentColumn, currentRaw, itemsInLine, Directions.SOUTHEAST)
+        if (iswinner(itemsInLine)) return true
 
-
+        return false
     }
 
-    /*
-    private fun isRightUpSame(currentColumn: CardView, currentRaw: Int, sum: Int): Int{
-        val currentColumnIndex = binding.tablero.indexOfChild(currentColumn)
 
-        // Corrobora que hay columna a la derecha
-        if (currentColumnIndex < NUMBEROFCOLUMNS-1){
-            val nextColumnIndex = currentColumnIndex+1
-            val nextColumn = binding.tablero[nextColumnIndex] as CardView
-
-            // Corrobora que hay al menos una fila superior
-            if (currentRaw > 0){
-                val nextRaw = currentRaw-1
-
-                // Corrobora que sea el mismo color a la derecha/Arriba
-                if (matrix[currentColumn.id.toString()]?.get(currentRaw) ==
-                    matrix[nextColumn.id.toString()]?.get(nextRaw)){
-
-                    return isRightUpSame(nextColumn, nextRaw, sum + 1)
-                }
-            }
-        }
-        return sum
-    }
-
-     */
-
-
-/*
-    private fun isLeftBottomSame(currentColumn: CardView, currentRaw: Int, sum: Int): Int{
-        val currentColumnIndex = binding.tablero.indexOfChild(currentColumn)
-
-        // Corrobora que hay columna a la izquierda
-        if (currentColumnIndex > 0){
-            val nextColumnIndex = currentColumnIndex-1
-            val nextColumn = binding.tablero[nextColumnIndex] as CardView
-
-            // Corrobora que hay al menos una fila inferior
-            if (currentRaw < NUMBEROFRAWS-1){
-                val nextRaw = currentRaw+1
-
-                // Corrobora que sea el mismo color a la left/bottom
-                if (matrix[currentColumn.id.toString()]?.get(currentRaw) ==
-                    matrix[nextColumn.id.toString()]?.get(nextRaw)){
-
-                    return isLeftBottomSame(nextColumn, nextRaw, sum + 1)
-                }
-            }
-        }
-        return sum
-    }
-
- */
-
-    private fun isSame(currentColumn: CardView, currentRaw: Int, sum: Int, direction: Direction): Int{
+    // monitor if the next item on the passed direction has or not the same color,
+    //  but first verify that space exists
+    private fun isSame(currentColumn: CardView, currentRaw: Int, sum: Int, direction: Directions): Int{
         val currentColumnIndex = binding.tablero.indexOfChild(currentColumn)
 
         // Corrobora que hay columna a la izquierda
@@ -216,65 +199,35 @@ class GameFragment : Fragment() {
     }
 
 
-
-    enum class Direction {
-        NORTHEAST,
-        EAST,
-        SOUTHEAST,
-        SOUTH,
-        SOUTHWEST,
-        WEST,
-        NORTHWEST;
-
-        fun nextColumnIndex(currentColumnIndex: Int) : Int{
-            return when(this) {
-                NORTHEAST, EAST, SOUTHEAST -> {currentColumnIndex + 1}
-                SOUTH -> currentColumnIndex
-                SOUTHWEST, WEST, NORTHWEST -> {currentColumnIndex - 1}
+    fun iswinner(itemsInLine: Int): Boolean {
+        if (itemsInLine >= 4) {
+            if (turnColor == RED) {
+                println(getString(R.string.tv_winner_red))
+                binding.tvTitle.text = getString(R.string.tv_winner_red)
+            } else{
+                println(getString(R.string.tv_winner_blue))
+                binding.tvTitle.text = getString(R.string.tv_winner_blue)
             }
-        }
-
-        fun nextRaw(currentRaw: Int) : Int{
-            return when(this) {
-                NORTHEAST, NORTHWEST  -> {currentRaw - 1}
-                EAST, WEST -> currentRaw
-                SOUTHWEST, SOUTHEAST, SOUTH -> {currentRaw + 1}
+            // Deshabilita las CardView para ser clickable
+            binding.tablero.forEach {
+                it.isClickable = false
             }
-        }
-
-        fun columnCondition(currentColumnIndex: Int, numberOfColumns: Int) : Boolean{
-            return when(this) {
-                NORTHEAST, EAST, SOUTHEAST -> {currentColumnIndex < numberOfColumns-1}
-                SOUTH -> true
-                SOUTHWEST, WEST, NORTHWEST -> {currentColumnIndex > 0}
-            }
-        }
-
-        fun rawCondition(currentRaw: Int, numberOfRaws: Int) : Boolean{
-            return when(this) {
-                NORTHWEST, NORTHEAST -> {currentRaw > 0}
-                EAST, WEST -> true
-                SOUTHEAST, SOUTH, SOUTHWEST -> {currentRaw < NUMBEROFRAWS-1}
-            }
+            binding.btnNext.visibility = Button.VISIBLE
+            return true
+        } else {
+            println("Falta barrio")
+            return false
         }
     }
 
-    private fun isRightSame(){
 
+    fun changeTitle(){
+        if (turnColor == RED){
+            binding.tvTitle.text = getString(R.string.tv_turn_red)
+        } else
+            binding.tvTitle.text = getString(R.string.tv_turn_blue)
     }
 
-    private fun isRightBottomSame(){
-
-    }
-
-    private fun isButtomSame(){
-
-    }
-
-
-    private fun linearLayout(column: CardView): LinearLayout{
-        return column.get(0) as LinearLayout
-    }
 
 
 }

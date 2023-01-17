@@ -9,6 +9,12 @@ buildscript {
         dataBindingCompilerVersion = gradleVersion // Always need to be the same.
         navigationVersion = "2.5.3"
     }
+    repositories {
+        google()
+    }
+    dependencies {
+        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:$navigationVersion")
+    }
 }
 
 plugins {
