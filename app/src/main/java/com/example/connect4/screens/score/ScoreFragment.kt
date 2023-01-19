@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
+import com.example.connect4.R
 import com.example.connect4.databinding.FragmentScoreBinding
 
 
@@ -13,13 +15,20 @@ class ScoreFragment : Fragment() {
     private var _binding: FragmentScoreBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var viewModel: ScoreViewModel
+    private lateinit var viewModelFactory: ScoreViewModelFactory
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
+    ): View {
         _binding = FragmentScoreBinding.inflate(inflater, container, false)
         val args = ScoreFragmentArgs.fromBundle(requireArguments())
-        binding.tvTitle.text = "Congratulations ${args.winner}\nNow you are the current\nCHAMPION"
+
+        viewModelFactory = ScoreViewModelFactory(args.winner)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(ScoreViewModel::class.java)
+
+        binding.tvTitle.text = getString(R.string.score_title, viewModel.winner)
 
         return binding.root
     }

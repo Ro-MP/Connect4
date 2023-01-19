@@ -8,4 +8,5 @@
     <string name="tv_winner_blue">BLUE DEFEATED YOU</string>
     <string name="tv_winner_red">RED DEFEATED YOU</string>
     <string name="btn_next">NEXT</string>
+    <string name="score_title">"Congratulations <annotation font="title_emphasis">%s</annotation>\nNow you are the current\nCHAMPION"</string>
 </resources>

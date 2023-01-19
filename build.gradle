@@ -8,6 +8,7 @@ buildscript {
         supportlibVersion = '1.2.0'
         dataBindingCompilerVersion = gradleVersion // Always need to be the same.
         navigationVersion = "2.5.3"
+        lifecycleVersion = "2.5.1"
     }
     repositories {
         google()
