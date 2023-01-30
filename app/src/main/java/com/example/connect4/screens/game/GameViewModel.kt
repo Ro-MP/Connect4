@@ -1,23 +1,43 @@
 package com.example.connect4.screens.game
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.connect4.R
 
 
 class GameViewModel : ViewModel() {
+    private val _matrix = MutableLiveData< MutableMap<String, MutableList<Int>> > ()
+    val matrix: LiveData< MutableMap<String, MutableList<Int>> >
+        get() = _matrix
+
+    private val _title = MutableLiveData< String > ("BLUE STARTS")
+    val title: LiveData<String>
+        get() = _title
+
+    private val _isAlreadyAWinner = MutableLiveData(false)
+    val isAlreadyAWinner: LiveData<Boolean>
+        get() = _isAlreadyAWinner
+
+    private val _movementsDone = MutableLiveData<Int>()
+    val movementsDone : LiveData<Int>
+        get() = _movementsDone
+
     // Values are asign considering a fixed board's matrix [6, 7]
-    var fullLevelRaw: MutableList<Int>  = mutableListOf()
-    var matrix = mutableMapOf<String, MutableList<Int>>()
+    var fullLevelRaw: MutableList<Int> = mutableListOf(6, 6, 6, 6, 6, 6, 6)
     var turnColor = "blue"
-    var title = "BLUE STARTS"
     private val numberOfColumns = 7
     private val numberOfRaws = 6
-    var isAlreadyAWinner = false
+
+    var currentColumn = 0
+    var currentRaw = 5
+
+
 
     init {
-        fullLevelRaw = mutableListOf(6, 6, 6, 6, 6, 6, 6)
-
         startMatrix()
+        _movementsDone.value = 0
 
 
     }
@@ -32,7 +52,11 @@ class GameViewModel : ViewModel() {
 
     private fun startMatrix(){
         for (cardIndex in 0 until numberOfColumns){
-            matrix["column$cardIndex"] = mutableListOf( 0, 0, 0, 0, 0, 0)
+            if (matrix.value == null) {
+                _matrix.value = mutableMapOf("column$cardIndex" to mutableListOf( 0, 0, 0, 0, 0, 0))
+            } else {
+                _matrix.value?.put("column$cardIndex", mutableListOf( 0, 0, 0, 0, 0, 0))
+            }
         }
     }
 
@@ -79,9 +103,8 @@ class GameViewModel : ViewModel() {
                 val nextRaw = direction.nextRaw(currentRaw)
 
                 // Corrobora que sea el mismo color a la left/bottom
-                if (matrix["column$currentColumn"]?.get(currentRaw) ==
-                    matrix["column$nextColumn"]?.get(nextRaw)){
-
+                if (matrix.value?.get("column$currentColumn")?.get(currentRaw) ==
+                    matrix.value?.get("column$nextColumn")?.get(nextRaw)){
                     return isSame(nextColumn, nextRaw, sum + 1, direction)
                 }
             }
@@ -97,5 +120,59 @@ class GameViewModel : ViewModel() {
             false
         }
     }
+
+
+    fun addTokenToColumn(columnIndex: Int){
+
+        // Comprueba que el tablero no este lleno
+        if(fullLevelRaw[columnIndex] > 0){
+            fullLevelRaw[columnIndex] -= 1
+
+            currentColumn = columnIndex
+            currentRaw = fullLevelRaw[columnIndex]
+
+            //Le asigna el valor seleccionado al las raws de la columna
+            matrix.value?.get("column$columnIndex")?.set(
+                fullLevelRaw[columnIndex], if (turnColor == BLUE) 1  else -1)
+
+
+            if (detectFourInLine(columnIndex, fullLevelRaw[columnIndex])) {
+                setWinner()
+            } else{
+                turnColor = if (turnColor == BLUE) RED else BLUE
+                changeTitle()
+            }
+
+            _movementsDone.value = movementsDone.value?.plus(1)
+        }
+
+    }
+
+    private fun changeTitle(){
+        if (turnColor == RED){
+            _title.value = TitlesText.TURNRED.text
+        } else{
+            _title.value = TitlesText.TURNBLUE.text
+        }
+
+    }
+
+    private fun setWinner(){
+        _isAlreadyAWinner.value = true
+        if (turnColor == RED) {
+            _title.value = TitlesText.WINNERRED.text
+        } else{
+            _title.value = TitlesText.WINNERBLUE.text
+        }
+    }
+
+    enum class TitlesText(val text: String){
+        INITIAL("BLUE STARTS"),
+        TURNRED("TURN OF RED"),
+        TURNBLUE("TURN OF BLUE"),
+        WINNERRED("RED DEFEAT YOU"),
+        WINNERBLUE("BLUE DEFEAT YOU")
+    }
+
 
 }

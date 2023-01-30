@@ -9,8 +9,10 @@ import android.widget.Button
 import android.widget.LinearLayout
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
+import androidx.core.view.children
 import androidx.core.view.forEach
 import androidx.core.view.get
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.example.connect4.R
@@ -30,6 +32,8 @@ class GameFragment : Fragment() {
 
 
 
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
@@ -39,25 +43,52 @@ class GameFragment : Fragment() {
 
         viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
 
-        tintBoard()
+
+
+        viewModel.movementsDone.observe(viewLifecycleOwner, Observer {
+            tintRaws(viewModel.currentColumn, viewModel.currentRaw)
+        })
+
+        if (viewModel.movementsDone.value == 0){
+            tintBoard()
+        }
+
+        viewModel.title.observe(viewLifecycleOwner, Observer { newTitle ->
+            binding.tvTitle.text = newTitle
+        })
+
+        viewModel.isAlreadyAWinner.observe(viewLifecycleOwner, Observer { isAlreadyAWinner ->
+            // Deshabilita las CardView para ser clickable
+            if (isAlreadyAWinner) {
+                binding.tablero.forEach {
+                    it.isClickable = false
+                }
+                with(binding.btnNext){
+                    this.visibility = Button.VISIBLE
+                    this.isClickable = true
+                }
+            }
+        })
 
         // Se inicializan los listeners para cuando se presionan las columnas
         binding.tablero.forEach { column ->
-            column.setOnClickListener { addTokenToColumn(column as CardView)  }
+            column.setOnClickListener {
+                viewModel.addTokenToColumn(binding.tablero.indexOfChild(column))
+            }
         }
 
         binding.btnNext.setOnClickListener {
             view.findNavController().navigate(GameFragmentDirections
                 .actionGameFragmentToScoreFragment(viewModel.turnColor))
         }
-        binding.tvTitle.text = viewModel.title
-        if (viewModel.isAlreadyAWinner){
-            disableCardsClickable()
-            setButtonNextEnable()
-        }
 
         return view
     }
+
+
+
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -65,46 +96,27 @@ class GameFragment : Fragment() {
     }
 
 
-    private fun addTokenToColumn(column: CardView){
-        val columnIndex = binding.tablero.indexOfChild(column)
-
-        // Comprueba que el tablero no este lleno
-        if(viewModel.fullLevelRaw[columnIndex] > 0){
-            viewModel.fullLevelRaw[columnIndex] -= 1
-
-            //Le asigna el valor seleccionado al las raws de la columna
-            viewModel.matrix["column$columnIndex"]?.set(
-                viewModel.fullLevelRaw[columnIndex], if (viewModel.turnColor == BLUE) 1  else -1)
-            tintRaws(column, viewModel.fullLevelRaw[columnIndex])
-            if (viewModel.detectFourInLine(columnIndex, viewModel.fullLevelRaw[columnIndex])) {
-                setWinner()
-
-            } else{
-                viewModel.turnColor = if (viewModel.turnColor == BLUE) RED else BLUE
-                changeTitle()
-            }
-        }
-    }
-
 
     private fun tintBoard(){
-        for (column in 0 until NUMBEROFCOLUMNS){
-            tintColumn(binding.tablero[column] as CardView)
+        for (columnIndex in 0 until NUMBEROFCOLUMNS){
+            tintColumn(columnIndex)
         }
     }
 
 
-    private fun tintColumn(column: CardView){
+    private fun tintColumn(columnIndex: Int){
         for (raw in 0 until NUMBEROFRAWS){
-            tintRaws(column, raw)
+            tintRaws(columnIndex, raw)
         }
     }
 
 
-    private fun tintRaws(column: CardView, raw: Int){
+    private fun tintRaws(columnIndex: Int, raw: Int){
+        val column: CardView = binding.tablero.get(columnIndex) as CardView
         val linearLayout = column.get(0) as LinearLayout
-        val itemColor = viewModel.matrix["column${binding.tablero.indexOfChild(column)}"]
-            ?.get(raw)!!
+        val itemColor = viewModel.matrix.value?.get("column${binding.tablero.indexOfChild(column)}")?.get(raw) ?: 0
+        println("### ${viewModel.matrix.value}")
+        println("### $itemColor")
 
         linearLayout.get(raw).backgroundTintList =
             if (itemColor != 0){
@@ -114,44 +126,12 @@ class GameFragment : Fragment() {
     }
 
 
-    private fun disableCardsClickable(){
-        // Deshabilita las CardView para ser clickable
-        binding.tablero.forEach {
-            it.isClickable = false
-        }
-    }
-
-    private fun setButtonNextEnable(){
-        with(binding.btnNext){
-            this.visibility = Button.VISIBLE
-            this.isClickable = true
-        }
-    }
 
 
 
-    private fun changeTitle(){
-        if (viewModel.turnColor == RED){
-            viewModel.title = getString(R.string.tv_turn_red)
-            binding.tvTitle.text = viewModel.title
-        } else{
-            viewModel.title = getString(R.string.tv_turn_blue)
-            binding.tvTitle.text = viewModel.title
-        }
 
-    }
 
-    private fun setWinner(){
-        disableCardsClickable()
-        setButtonNextEnable()
-        viewModel.isAlreadyAWinner = true
-        if (viewModel.turnColor == RED) {
-            viewModel.title = getString(R.string.tv_winner_red)
-        } else{
-            viewModel.title = getString(R.string.tv_winner_blue)
-        }
-        binding.tvTitle.text = viewModel.title
-    }
+
 
 
 }

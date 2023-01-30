@@ -1,12 +1,9 @@
 <resources>
     <string name="app_name">Connect4</string>
     <!-- TODO: Remove or change this placeholder text -->
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="tv_initial">BLUE STARTS</string>
-    <string name="tv_turn_red">TURN OF RED</string>
-    <string name="tv_turn_blue">TURN OF BLUE</string>
-    <string name="tv_winner_blue">BLUE DEFEATED YOU</string>
-    <string name="tv_winner_red">RED DEFEATED YOU</string>
     <string name="btn_next">NEXT</string>
     <string name="score_title">"Congratulations <annotation font="title_emphasis">%s</annotation>\nNow you are the current\nCHAMPION"</string>
+    <string name="tv_initial">TURN OF BLUE</string>
 </resources>
