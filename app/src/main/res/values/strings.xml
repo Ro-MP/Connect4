@@ -6,4 +6,6 @@
     <string name="btn_next">NEXT</string>
     <string name="score_title">"Congratulations <annotation font="title_emphasis">%s</annotation>\nNow you are the current\nCHAMPION"</string>
     <string name="tv_initial">TURN OF BLUE</string>
+
+    <string name="quote_format">\"%s\"</string>
 </resources>

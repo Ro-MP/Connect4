@@ -9,14 +9,16 @@ import android.widget.Button
 import android.widget.LinearLayout
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
-import androidx.core.view.children
 import androidx.core.view.forEach
 import androidx.core.view.get
+import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.example.connect4.R
 import com.example.connect4.databinding.FragmentGameBinding
+import kotlinx.android.synthetic.main.fragment_game.*
 
 const val NUMBEROFCOLUMNS = 7
 const val NUMBEROFRAWS = 6
@@ -38,10 +40,16 @@ class GameFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        _binding = FragmentGameBinding.inflate(inflater, container, false)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_game, container, false)
+        //_binding = FragmentGameBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
+        viewModel = ViewModelProvider(this)[GameViewModel::class.java]
+        _binding?.apply {
+            gameViewModel = viewModel
+            lifecycleOwner = viewLifecycleOwner
+        }
+
 
 
 
@@ -53,12 +61,12 @@ class GameFragment : Fragment() {
             tintBoard()
         }
 
-        viewModel.title.observe(viewLifecycleOwner, Observer { newTitle ->
+        /*viewModel.title.observe(viewLifecycleOwner, Observer { newTitle ->
             binding.tvTitle.text = newTitle
-        })
+        })*/
 
         viewModel.isAlreadyAWinner.observe(viewLifecycleOwner, Observer { isAlreadyAWinner ->
-            // Deshabilita las CardView para ser clickable
+            // Deshabilita las CardView para ser clickable y habilita el boton de Next
             if (isAlreadyAWinner) {
                 binding.tablero.forEach {
                     it.isClickable = false
@@ -86,7 +94,12 @@ class GameFragment : Fragment() {
     }
 
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
+
+
+    }
 
 
 
@@ -115,8 +128,6 @@ class GameFragment : Fragment() {
         val column: CardView = binding.tablero.get(columnIndex) as CardView
         val linearLayout = column.get(0) as LinearLayout
         val itemColor = viewModel.matrix.value?.get("column${binding.tablero.indexOfChild(column)}")?.get(raw) ?: 0
-        println("### ${viewModel.matrix.value}")
-        println("### $itemColor")
 
         linearLayout.get(raw).backgroundTintList =
             if (itemColor != 0){

@@ -1,8 +1,11 @@
 package com.example.connect4.screens.game
 
+import android.os.CountDownTimer
+import android.text.format.DateUtils
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.example.connect4.R
 
@@ -24,6 +27,13 @@ class GameViewModel : ViewModel() {
     val movementsDone : LiveData<Int>
         get() = _movementsDone
 
+    private val _currentTime = MutableLiveData<Long>()
+    val currentTime : LiveData<Long>
+        get() = _currentTime
+    val currentTimeString = Transformations.map(currentTime) { time ->
+        DateUtils.formatElapsedTime(time)
+    }
+
     // Values are asign considering a fixed board's matrix [6, 7]
     var fullLevelRaw: MutableList<Int> = mutableListOf(6, 6, 6, 6, 6, 6, 6)
     var turnColor = "blue"
@@ -33,11 +43,26 @@ class GameViewModel : ViewModel() {
     var currentColumn = 0
     var currentRaw = 5
 
+    private val timer: CountDownTimer
 
 
     init {
         startMatrix()
         _movementsDone.value = 0
+
+        timer = object : CountDownTimer(COUNTDOWN_TIME, ONE_SECOND){
+            override fun onTick(millisUntilFinished: Long) {
+                _currentTime.value = millisUntilFinished / ONE_SECOND
+            }
+
+            override fun onFinish() {
+                _currentTime.value = DONE
+                setTie()
+            }
+
+        }
+
+        timer.start()
 
 
     }
@@ -46,7 +71,8 @@ class GameViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        Log.i("GameViewModel", "GameViewModel destroyed")
+        // Cancel the timer
+        timer.cancel()
 
     }
 
@@ -113,12 +139,7 @@ class GameViewModel : ViewModel() {
     }
 
     private fun isWinner(itemsInLine: Int): Boolean {
-        return if (itemsInLine >= 4) {
-            true
-        } else {
-            println("Falta barrio")
-            false
-        }
+        return itemsInLine >= 4
     }
 
 
@@ -166,13 +187,32 @@ class GameViewModel : ViewModel() {
         }
     }
 
+    private fun setTie(){
+        _isAlreadyAWinner.value = true
+        _title.value = TitlesText.TIE.text
+    }
+
     enum class TitlesText(val text: String){
         INITIAL("BLUE STARTS"),
         TURNRED("TURN OF RED"),
         TURNBLUE("TURN OF BLUE"),
         WINNERRED("RED DEFEAT YOU"),
-        WINNERBLUE("BLUE DEFEAT YOU")
+        WINNERBLUE("BLUE DEFEAT YOU"),
+        TIE("No body wins")
     }
 
+
+    companion object {
+
+        // Time when the game is over
+        private const val DONE = 0L
+
+        // Countdown time interval
+        private const val ONE_SECOND = 1000L
+
+        // Total time for the game
+        private const val COUNTDOWN_TIME = 60000L
+
+    }
 
 }
