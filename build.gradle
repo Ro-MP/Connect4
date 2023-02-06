@@ -9,6 +9,7 @@ buildscript {
         dataBindingCompilerVersion = gradleVersion // Always need to be the same.
         navigationVersion = "2.5.3"
         lifecycleVersion = "2.5.1"
+        roomVersion = "2.5.0"
     }
     repositories {
         google()
