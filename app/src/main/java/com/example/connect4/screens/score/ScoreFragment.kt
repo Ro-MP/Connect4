@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import com.example.connect4.R
+import com.example.connect4.database.ScoreDatabase
 import com.example.connect4.databinding.FragmentScoreBinding
 
 
@@ -25,8 +26,20 @@ class ScoreFragment : Fragment() {
         _binding = FragmentScoreBinding.inflate(inflater, container, false)
         val args = ScoreFragmentArgs.fromBundle(requireArguments())
 
-        viewModelFactory = ScoreViewModelFactory(args.winner)
+        // Get reference to the application context
+        val application = requireNotNull(this.activity).application
+
+        // Get reference to the DAO of the datasource
+        val dataSource = ScoreDatabase.getInstance(application).scoreDatabaseDao
+
+
+        viewModelFactory = ScoreViewModelFactory(args.winner, args.timeLength, dataSource, application)
         viewModel = ViewModelProvider(this, viewModelFactory).get(ScoreViewModel::class.java)
+
+        _binding?.apply {
+            scoreViewModel = viewModel
+            lifecycleOwner = viewLifecycleOwner
+        }
 
         binding.tvTitle.text = getString(R.string.score_title, viewModel.winner)
 

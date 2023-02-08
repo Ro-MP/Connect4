@@ -4,6 +4,9 @@ import android.text.format.DateUtils
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.util.*
 
 @Entity(tableName = "connect4_score_table")
 data class Score(
@@ -14,8 +17,17 @@ data class Score(
     var winner: String = "",
 
     @ColumnInfo(name = "time_length")
-    var timeLength: Long = 0L,
+    var timeLength: String = "",
 
     @ColumnInfo(name = "date")
-    var date: DateUtils = DateUtils()
+    var date: String = getCurrentDateString()
 )
+
+fun getCurrentDateString(): String{
+    val dateFormat = SimpleDateFormat("dd-MM-yyyy")
+    dateFormat.timeZone = TimeZone.getTimeZone("America/Mexico_City")
+
+    val date = dateFormat.format(Calendar.getInstance().time)
+
+    return date
+}

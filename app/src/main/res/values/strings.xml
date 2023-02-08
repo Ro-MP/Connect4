@@ -8,4 +8,5 @@
     <string name="tv_initial">TURN OF BLUE</string>
 
     <string name="quote_format">\"%s\"</string>
+    <string name="clear_record">CLEAR RECORD</string>
 </resources>

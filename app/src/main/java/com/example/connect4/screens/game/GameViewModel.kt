@@ -178,8 +178,13 @@ class GameViewModel : ViewModel() {
 
     }
 
-    private fun setWinner(){
+    fun setWinner(){
         _isAlreadyAWinner.value = true
+
+        val timeString = currentTime.value!!
+        timer.cancel()
+        _currentTime.value = timeString
+
         if (turnColor == RED) {
             _title.value = TitlesText.WINNERRED.text
         } else{

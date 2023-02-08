@@ -10,22 +10,22 @@ import androidx.room.Update
 interface ScoreDatabaseDao {
 
     @Insert
-    fun insert(score: Score)
+    suspend fun insert(score: Score)
 
     @Update
-    fun update(score: Score)
+    suspend fun update(score: Score)
 
     @Query("SELECT * from connect4_score_table WHERE scoreId = :key")
-    fun get(key: Long): Score?
+    suspend fun get(key: Long): Score?
 
     @Query("DELETE FROM connect4_score_table")
-    fun clear()
+    suspend fun clear()
 
-    @Query("SELECT * FROM connect4_score_table ORDER VY coreId DESC LIMIT 1")
-    fun getLast(): Score?
+    @Query("SELECT * FROM connect4_score_table ORDER BY scoreId DESC LIMIT 1")
+    suspend fun getLastScore(): Score?
 
-    @Query("SELECT * FROM connect4_score_table ORDER BY scoreID DESC")
-    fun getAllNights(): LiveData< List<Score> >
+    @Query("SELECT * FROM connect4_score_table ORDER BY scoreId DESC")
+    fun getAllScores(): LiveData< List<Score> >
 
 
 

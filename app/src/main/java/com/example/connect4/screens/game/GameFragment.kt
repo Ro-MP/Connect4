@@ -87,7 +87,7 @@ class GameFragment : Fragment() {
 
         binding.btnNext.setOnClickListener {
             view.findNavController().navigate(GameFragmentDirections
-                .actionGameFragmentToScoreFragment(viewModel.turnColor))
+                .actionGameFragmentToScoreFragment(viewModel.turnColor, viewModel.currentTimeString.value?:""))
         }
 
         return view
