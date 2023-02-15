@@ -62,7 +62,7 @@ class ScoreFragment : Fragment() {
         // Mantiene actualizado el data del RVAdapter con el LiveData de scores del ViewModel
         viewModel.scores.observe(viewLifecycleOwner, Observer {
             it?.let {
-                adapter.data = it
+                adapter.submitList(it)
             }
         })
 

@@ -1,34 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tool="http://schemas.android.com/tools"
-    android:layout_height="wrap_content"
-    android:layout_width="match_parent"
-    >
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <data>
+        <variable
+            name="score"
+            type="com.example.connect4.database.Score" />
+    </data>
 
-    <TextView
-        android:id="@+id/tv_date"
+    <LinearLayout
         android:layout_height="wrap_content"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:textSize="20sp"
-        tool:text="13/05/22"/>
+        android:layout_width="match_parent">
 
-    <TextView
-        android:id="@+id/tv_winner"
-        android:layout_height="wrap_content"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:textSize="20sp"
-        tool:text="Rodrigo" />
 
-    <TextView
-        android:id="@+id/tv_duration"
-        android:layout_height="wrap_content"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:textSize="20sp"
-        tool:text="00:45" />
+        <TextView
+            android:id="@+id/tv_date"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textSize="20sp"
+            android:text="@{score.date}"
+            tool:text="13/05/22" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/tv_winner"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textSize="20sp"
+            app:getWinnerAdapter="@{score}"
+            tool:text="Rodrigo" />
+
+        <TextView
+            android:id="@+id/tv_duration"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textSize="20sp"
+            android:text="@{score.timeLength}"
+
+            tool:text="00:45" />
+
+    </LinearLayout>
+</layout>
