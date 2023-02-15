@@ -19,65 +19,96 @@
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Score Fragment"
+            tools:hint="Congratulations Batman\nNow You are the current\nCHAMPION"
             android:gravity="center"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/scroll_view"
+            app:layout_constraintBottom_toTopOf="@id/rv_scores_list"
 
             />
-        <TextView
-            android:id="@+id/tv_title_list_of_scores"
-            android:layout_width="match_parent"
+
+        <Button
+            android:id="@+id/btn_change_name"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="ENTER YOURE NAME"
+            android:layout_margin="24dp"
+            style="@style/Widget.MaterialComponents.Button"
+            app:layout_constraintTop_toBottomOf="@id/tv_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
+
+        <LinearLayout
+            android:id="@+id/tv_title_list_of_scores"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
             android:paddingHorizontal="16dp"
-            android:text="DATE               WINNER        DURATION"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/scroll_view"
-            />
-        <androidx.core.widget.NestedScrollView
-            android:id="@+id/scroll_view"
+            app:layout_constraintBottom_toTopOf="@id/rv_scores_list"
+
+            >
+
+
+            <TextView
+                android:id="@+id/tv_date"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textSize="20sp"
+                android:text="@string/title_date"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+                />
+
+            <TextView
+                android:id="@+id/tv_winner"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textSize="20sp"
+                android:text="@string/title_winner"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+                />
+
+            <TextView
+                android:id="@+id/tv_duration"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textSize="20sp"
+                android:text="@string/title_duration"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+                />
+
+        </LinearLayout>
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_scores_list"
             android:layout_width="match_parent"
             android:layout_height="150dp"
+            android:paddingHorizontal="16dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_title"
             app:layout_constraintBottom_toBottomOf="parent">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:paddingHorizontal="16dp"
-                android:gravity="top">
-
-                <TextView
-                    android:id="@+id/tv_list_of_scores"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@{scoreViewModel.scoresString}"
-                    tools:hint="15/feb/2023               BLUE                         00:36"
-                    />
-
-            </LinearLayout>
-
-        </androidx.core.widget.NestedScrollView>
+        </androidx.recyclerview.widget.RecyclerView>
 
         <Button
             android:id="@+id/clear_record"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/clear_record"
             android:onClick="@{() -> scoreViewModel.onClear()}"
-            app:layout_constraintStart_toStartOf="parent"
+            android:text="@string/clear_record"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:src="@drawable/delete"
+            android:layout_margin="24dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scroll_view"
-            app:layout_constraintBottom_toBottomOf="parent"
-            />
+            app:layout_constraintTop_toBottomOf="@id/rv_scores_list" />
 
 
 

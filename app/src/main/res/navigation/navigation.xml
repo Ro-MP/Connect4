@@ -31,12 +31,35 @@
         android:label="fragment_score"
         tools:layout="@layout/fragment_score" >
         <argument
+            android:name="scoreId"
+            app:argType="long" />
+        <argument
             android:name="winner"
             app:argType="string"
+            app:nullable="true"
             />
         <argument
             android:name="timeLength"
             app:argType="string"
+            app:nullable="true"
+            />
+        <action
+            android:id="@+id/action_scoreFragment_to_winnerNameFragment"
+            app:destination="@id/winnerNameFragment"
+            app:popUpTo="@id/scoreFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/winnerNameFragment"
+        android:name="com.example.connect4.screens.winnerName.WinnerNameFragment"
+        android:label="WinnerNameFragment" >
+        <action
+            android:id="@+id/action_winnerNameFragment_to_scoreFragment"
+            app:destination="@id/scoreFragment"
+            app:popUpTo="@id/scoreFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="scoreId"
+            app:argType="long"
             />
     </fragment>
 

@@ -1,12 +1,15 @@
 <resources>
     <string name="app_name">Connect4</string>
-    <!-- TODO: Remove or change this placeholder text -->
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="btn_next">NEXT</string>
-    <string name="score_title">"Congratulations <annotation font="title_emphasis">%s</annotation>\nNow you are the current\nCHAMPION"</string>
+    <string name="score_title">Congratulations <annotation font="title_emphasis">%s</annotation>\nNow you are the current\n🔥 CHAMPION 🔥</string>
     <string name="tv_initial">TURN OF BLUE</string>
 
     <string name="quote_format">\"%s\"</string>
     <string name="clear_record">CLEAR RECORD</string>
+    <string name="error">Name is required</string>
+    <string name="title_date">DATE</string>
+    <string name="title_winner">WINNER</string>
+    <string name="title_duration">DURATION</string>
 </resources>

@@ -5,10 +5,15 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.example.connect4.R
 import com.example.connect4.database.ScoreDatabase
 import com.example.connect4.databinding.FragmentScoreBinding
+import com.example.connect4.nullRepresentByDecimal
+import com.example.connect4.screens.score.scoreRecyclerView.ScoreAdapter
 
 
 class ScoreFragment : Fragment() {
@@ -24,6 +29,7 @@ class ScoreFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentScoreBinding.inflate(inflater, container, false)
+        val view = binding.root
         val args = ScoreFragmentArgs.fromBundle(requireArguments())
 
         // Get reference to the application context
@@ -33,17 +39,48 @@ class ScoreFragment : Fragment() {
         val dataSource = ScoreDatabase.getInstance(application).scoreDatabaseDao
 
 
-        viewModelFactory = ScoreViewModelFactory(args.winner, args.timeLength, dataSource, application)
+
+        val scoreId = if (args.scoreId == nullRepresentByDecimal()) null else args.scoreId
+        viewModelFactory = ScoreViewModelFactory(
+            scoreId,
+            args.winner,
+            args.timeLength,
+            dataSource,
+            application)
         viewModel = ViewModelProvider(this, viewModelFactory).get(ScoreViewModel::class.java)
+
 
         _binding?.apply {
             scoreViewModel = viewModel
             lifecycleOwner = viewLifecycleOwner
         }
 
-        binding.tvTitle.text = getString(R.string.score_title, viewModel.winner)
 
-        return binding.root
+        // Inicializa adapter para RecyclerView y vincula al RV de la vista
+        val adapter = ScoreAdapter()
+        binding.rvScoresList.adapter = adapter
+        // Mantiene actualizado el data del RVAdapter con el LiveData de scores del ViewModel
+        viewModel.scores.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                adapter.data = it
+            }
+        })
+
+
+        viewModel.currentWinner.observe(viewLifecycleOwner, Observer {
+            binding.tvTitle.text = getString(R.string.score_title, it)
+        })
+
+
+
+        binding.btnChangeName.setOnClickListener {
+            viewModel.getNewScoreId()?.apply {
+                view.findNavController().navigate(ScoreFragmentDirections
+                    .actionScoreFragmentToWinnerNameFragment(this))
+            }
+        }
+
+        return view
     }
 
 

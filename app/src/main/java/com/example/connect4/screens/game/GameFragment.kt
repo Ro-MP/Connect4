@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.example.connect4.R
 import com.example.connect4.databinding.FragmentGameBinding
+import com.example.connect4.nullRepresentByDecimal
 import kotlinx.android.synthetic.main.fragment_game.*
 
 const val NUMBEROFCOLUMNS = 7
@@ -87,7 +88,7 @@ class GameFragment : Fragment() {
 
         binding.btnNext.setOnClickListener {
             view.findNavController().navigate(GameFragmentDirections
-                .actionGameFragmentToScoreFragment(viewModel.turnColor, viewModel.currentTimeString.value?:""))
+                .actionGameFragmentToScoreFragment(nullRepresentByDecimal(), viewModel.turnColor, viewModel.currentTimeString.value))
         }
 
         return view

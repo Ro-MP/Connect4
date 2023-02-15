@@ -181,7 +181,7 @@ class GameViewModel : ViewModel() {
     fun setWinner(){
         _isAlreadyAWinner.value = true
 
-        val timeString = currentTime.value!!
+        val timeString = 60L - currentTime.value!!
         timer.cancel()
         _currentTime.value = timeString
 

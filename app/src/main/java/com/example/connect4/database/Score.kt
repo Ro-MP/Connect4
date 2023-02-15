@@ -4,6 +4,7 @@ import android.text.format.DateUtils
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.connect4.getCurrentDateString
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.*
@@ -23,11 +24,4 @@ data class Score(
     var date: String = getCurrentDateString()
 )
 
-fun getCurrentDateString(): String{
-    val dateFormat = SimpleDateFormat("dd-MM-yyyy")
-    dateFormat.timeZone = TimeZone.getTimeZone("America/Mexico_City")
 
-    val date = dateFormat.format(Calendar.getInstance().time)
-
-    return date
-}
