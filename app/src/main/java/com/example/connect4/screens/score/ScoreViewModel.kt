@@ -27,6 +27,9 @@ class ScoreViewModel(
 //        get() = _currentWinner
 
 
+    private val _navigateToScoreDetail = MutableLiveData<Long?>()
+    val navigateToScoreDetail: LiveData<Long?>
+        get() = _navigateToScoreDetail
 
     private var currentTimeLength : String? = ""
 
@@ -128,6 +131,14 @@ class ScoreViewModel(
         End - Database
      */
 
+
+    fun onScoreClicked(id: Long) {
+        _navigateToScoreDetail.value = id
+    }
+
+    fun onScoreDetailNavigated() {
+        _navigateToScoreDetail.value = null
+    }
 
 
 }

@@ -3,6 +3,7 @@ package com.example.connect4.screens.score.scoreRecyclerView
 import android.graphics.Color
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
+import com.example.connect4.R
 import com.example.connect4.database.Score
 
 
@@ -11,14 +12,23 @@ import com.example.connect4.database.Score
 //        //text = ""
 //    }
 
-@BindingAdapter("getWinnerAdapter")
-fun TextView.setTextWinnerColor(item: Score){
-    text = item.winner
-    when (item.winner) {
-        "blue" -> setTextColor(Color.BLUE)
-        "red" -> setTextColor(Color.RED)
-        else -> setTextColor(Color.BLACK)
+@BindingAdapter("winnerColor")
+fun TextView.setTextWinnerColor(item: Score?){
+    item?.let {score ->
+        when (score.winner) {
+            "blue" -> setTextColor(Color.BLUE)
+            "red" -> setTextColor(Color.RED)
+            else -> setTextColor(Color.BLACK)
+        }
     }
+
+}
+@BindingAdapter("winnerForScoreDetail")
+fun TextView.getWinnerForScoreDetail(item: Score?){
+    item?.let {score ->
+        text = resources.getString(R.string.winner_for_detail_fragment, score.winner)
+    }
+
 }
 
 

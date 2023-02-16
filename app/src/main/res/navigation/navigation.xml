@@ -47,6 +47,9 @@
             android:id="@+id/action_scoreFragment_to_winnerNameFragment"
             app:destination="@id/winnerNameFragment"
             app:popUpTo="@id/scoreFragment" />
+        <action
+            android:id="@+id/action_scoreFragment_to_scoreDetailFragment"
+            app:destination="@id/scoreDetailFragment" />
     </fragment>
     <fragment
         android:id="@+id/winnerNameFragment"
@@ -57,6 +60,18 @@
             app:destination="@id/scoreFragment"
             app:popUpTo="@id/scoreFragment"
             app:popUpToInclusive="true" />
+        <argument
+            android:name="scoreId"
+            app:argType="long"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/scoreDetailFragment"
+        android:name="com.example.connect4.screens.scoreDetail.ScoreDetailFragment"
+        android:label="ScoreDetailFragment" >
+        <action
+            android:id="@+id/action_scoreDetailFragment_to_scoreFragment"
+            app:destination="@id/scoreFragment" />
         <argument
             android:name="scoreId"
             app:argType="long"

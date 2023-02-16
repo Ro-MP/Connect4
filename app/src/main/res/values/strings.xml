@@ -12,4 +12,7 @@
     <string name="title_date">DATE</string>
     <string name="title_winner">WINNER</string>
     <string name="title_duration">DURATION</string>
+
+    winnerForDetail
+    <string name="winner_for_detail_fragment">The champion was\n🔥 %s 🔥</string>
 </resources>

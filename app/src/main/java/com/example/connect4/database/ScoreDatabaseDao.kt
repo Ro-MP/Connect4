@@ -27,6 +27,4 @@ interface ScoreDatabaseDao {
     @Query("SELECT * FROM connect4_score_table ORDER BY scoreId DESC")
     fun getAllScores(): LiveData< List<Score> >
 
-
-
 }

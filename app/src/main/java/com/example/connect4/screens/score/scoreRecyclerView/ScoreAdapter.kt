@@ -10,7 +10,7 @@ import com.example.connect4.database.Score
 import com.example.connect4.databinding.ScoreItemViewBinding
 
 
-class ScoreAdapter : ListAdapter<Score, ScoreAdapter.ViewHolder>(ScoreDiffCallback()) {
+class ScoreAdapter(val clickListener: ScoreListener) : ListAdapter<Score, ScoreAdapter.ViewHolder>(ScoreDiffCallback()) {
 
 
 
@@ -27,7 +27,7 @@ class ScoreAdapter : ListAdapter<Score, ScoreAdapter.ViewHolder>(ScoreDiffCallba
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
-        holder.bind(item)
+        holder.bind(item, clickListener)
 
     }
 
@@ -35,11 +35,13 @@ class ScoreAdapter : ListAdapter<Score, ScoreAdapter.ViewHolder>(ScoreDiffCallba
 
 
     class ViewHolder private constructor(val binding: ScoreItemViewBinding): RecyclerView.ViewHolder(binding.root){
+    // constructor(val binding: ScoreItemViewGridBinding): RecyclerView.ViewHolder(binding.root){
 //        val date: TextView = binding.tvDate
 //        val winner: TextView = binding.tvWinner
 //        val duration: TextView = binding.tvDuration
 
-        fun bind(item: Score) {
+
+        fun bind(item: Score, clickListener: ScoreListener) {
 //            date.text = item.date
 //            winner.text = item.winner
 //            duration.text = item.timeLength
@@ -53,12 +55,14 @@ class ScoreAdapter : ListAdapter<Score, ScoreAdapter.ViewHolder>(ScoreDiffCallba
 
             binding.score = item
             binding.executePendingBindings()
+            binding.clickListener = clickListener
         }
 
         companion object {
             fun from(parent: ViewGroup): ViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
                 //val view = layoutInflater.inflate(R.layout.score_item_view, parent, false)
+                //val binding = ScoreItemViewGridBinding.inflate(layoutInflater, parent, false)
                 val binding = ScoreItemViewBinding.inflate(layoutInflater, parent, false)
 
                 return ViewHolder(binding)
@@ -81,4 +85,8 @@ class ScoreDiffCallback : DiffUtil.ItemCallback<Score>() {
         return oldItem == newItem
     }
 
+}
+
+class ScoreListener(val clickListener: (scoreId: Long) -> Unit ){
+    fun onClick(score: Score) = clickListener(score.scoreId)
 }

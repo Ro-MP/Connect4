@@ -7,21 +7,20 @@
         <variable
             name="score"
             type="com.example.connect4.database.Score" />
-        <variable
-            name="clickListener"
-            type="com.example.connect4.screens.score.scoreRecyclerView.ScoreListener" />
     </data>
 
     <LinearLayout
         android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:onClick="@{() -> clickListener.onClick(score)}">
+        android:layout_width="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_margin="16dp">
 
 
         <TextView
             android:id="@+id/tv_date"
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_width="wrap_content"
             android:layout_weight="1"
             android:textSize="20sp"
             android:text="@{score.date}"
@@ -29,22 +28,23 @@
 
         <TextView
             android:id="@+id/tv_winner"
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_width="wrap_content"
             android:layout_weight="1"
             android:textSize="20sp"
-            android:text="@{score.winner}"
             app:winnerColor="@{score}"
             tool:text="Rodrigo" />
 
         <TextView
             android:id="@+id/tv_duration"
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_width="wrap_content"
             android:layout_weight="1"
             android:textSize="20sp"
             android:text="@{score.timeLength}"
+
             tool:text="00:45" />
+
 
     </LinearLayout>
 </layout>
