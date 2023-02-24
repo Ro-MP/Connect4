@@ -15,4 +15,5 @@
 
     winnerForDetail
     <string name="winner_for_detail_fragment">The champion was\n🔥 %s 🔥</string>
+    <string name="header_text">Score Results</string>
 </resources>

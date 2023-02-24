@@ -1,21 +1,48 @@
 package com.example.connect4.screens.score.scoreRecyclerView
 
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.connect4.R
 import com.example.connect4.database.Score
 import com.example.connect4.databinding.ScoreItemViewBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
+private const val ITEM_VIEW_TYPE_HEADER = 0
+private const val ITEM_VIEW_TYPE_ITEM = 1
 
-class ScoreAdapter(val clickListener: ScoreListener) : ListAdapter<Score, ScoreAdapter.ViewHolder>(ScoreDiffCallback()) {
+class ScoreAdapter(val clickListener: ScoreListener) : ListAdapter<DataItem, RecyclerView.ViewHolder>(ScoreDiffCallback()) {
 
+    private val adapterScope = CoroutineScope(Dispatchers.Default)
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            ITEM_VIEW_TYPE_HEADER -> TextViewHolder.from(parent)
+            ITEM_VIEW_TYPE_ITEM -> ViewHolder.from(parent)
+            else -> throw ClassCastException("Unknown viewType $viewType")
+        }
+    }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.from(parent)
+    fun addHeaderAndSubmitList(list: List<Score>?) {
+        adapterScope.launch {
+            val items = when (list) {
+                null -> listOf(DataItem.Header)
+                else -> listOf(DataItem.Header) + list.map { DataItem.ScoreItem(it) }
+            }
+            withContext(Dispatchers.Main){
+                submitList(items)
+            }
+
+        }
+
     }
 
 
@@ -25,14 +52,34 @@ class ScoreAdapter(val clickListener: ScoreListener) : ListAdapter<Score, ScoreA
     }
 
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = getItem(position)
-        holder.bind(item, clickListener)
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (holder) {
+            is ViewHolder -> {
+                val scoreItem = getItem(position) as DataItem.ScoreItem
+                holder.bind(scoreItem.score, clickListener)
+            }
+        }
 
     }
 
+    override fun getItemViewType(position: Int): Int {
+        return when (getItem(position)) {
+            is DataItem.Header -> ITEM_VIEW_TYPE_HEADER
+            is DataItem.ScoreItem -> ITEM_VIEW_TYPE_ITEM
+        }
+    }
 
 
+    class TextViewHolder(view: View): RecyclerView.ViewHolder(view) {
+        companion object {
+            fun from(parent: ViewGroup): TextViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val view = layoutInflater.inflate(R.layout.header, parent, false)
+
+                return TextViewHolder(view)
+            }
+        }
+    }
 
     class ViewHolder private constructor(val binding: ScoreItemViewBinding): RecyclerView.ViewHolder(binding.root){
     // constructor(val binding: ScoreItemViewGridBinding): RecyclerView.ViewHolder(binding.root){
@@ -76,12 +123,13 @@ class ScoreAdapter(val clickListener: ScoreListener) : ListAdapter<Score, ScoreA
 
 
 
-class ScoreDiffCallback : DiffUtil.ItemCallback<Score>() {
-    override fun areItemsTheSame(oldItem: Score, newItem: Score): Boolean {
-        return oldItem.scoreId == newItem.scoreId
+class ScoreDiffCallback : DiffUtil.ItemCallback<DataItem>() {
+    override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+        return oldItem.id == newItem.id
     }
 
-    override fun areContentsTheSame(oldItem: Score, newItem: Score): Boolean {
+    @SuppressLint("DiffUtilEquals")
+    override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
         return oldItem == newItem
     }
 
@@ -89,4 +137,16 @@ class ScoreDiffCallback : DiffUtil.ItemCallback<Score>() {
 
 class ScoreListener(val clickListener: (scoreId: Long) -> Unit ){
     fun onClick(score: Score) = clickListener(score.scoreId)
+}
+
+sealed class DataItem {
+    abstract val id: Long
+    data class ScoreItem(val score: Score): DataItem() {
+        override val id = score.scoreId
+    }
+
+    object Header: DataItem(){
+        override val id = Long.MIN_VALUE //Avoid conflict with any ID
+    }
+
 }
